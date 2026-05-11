@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)file:///C:/Users/noman.riaz/Downloads/rahayel_dashboard_standalone.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rahayel Auto City — Executive Dashboard</title>
+<style>
+:root{
+  --bg:#070e18;--bg-card:#0d1c2c;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#eef2f7;--muted:rgba(255,255,255,0.42);--dim:rgba(255,255,255,0.2);
+  --red:#c0392b;--red2:#e74c3c;--green:#1d9e75;--green2:#27ae60;
+  --amber:#e67e22;--amber2:#f39c12;--blue:#2980b9;--blue2:#3498db;
+  --purple:#8e44ad;--teal:#5dcaa5;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+
+.hdr{background:#08121e;border-bottom:1px solid var(--border2);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.hdr-brand{display:flex;align-items:center;gap:13px}
+.hdr-logo{width:40px;height:40px;border-radius:10px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.hdr-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.chip{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid rgba(255,255,255,0.13);color:var(--muted);cursor:pointer;background:none}
+.chip.active{background:var(--red);border-color:var(--red);color:#fff}
+.date-tag{font-size:11px;color:var(--muted);background:rgba(255,255,255,0.05);padding:5px 11px;border-radius:7px;border:1px solid var(--border)}
+
+.nav{background:#08121e;border-bottom:1px solid var(--border);display:flex;padding:0 24px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.ni{padding:9px 13px;font-size:11px;font-weight:500;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.ni.active{color:#fff;border-bottom-color:var(--red)}
+
+.canvas{padding:16px 20px;display:flex;flex-direction:column;gap:13px;max-width:1600px;margin:0 auto}
+
+/* health band */
+.health-band{display:grid;grid-template-columns:260px 1fr;gap:13px;align-items:stretch}
+.health-dial-card{background:var(--bg-card);border-radius:14px;border:1px solid var(--border);padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dial-label{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:12px;text-align:center}
+.dial-wrap{position:relative;width:180px;height:105px}
+.dial-score{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}
+.dial-num{font-size:40px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dial-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.dial-grade{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-top:5px;background:rgba(39,174,96,.2);color:#2ecc71}
+.dial-breakdown{display:flex;gap:8px;margin-top:12px;width:100%}
+.db-item{flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:8px;padding:7px 5px}
+.db-val{font-size:13px;font-weight:700}
+.db-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* kpi strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+.kc{background:var(--bg-card);border-radius:12px;padding:12px 13px 9px;border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s}
+.kc:hover{transform:translateY(-2px)}
+.kc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.kc.gr::before{background:var(--green)}.kc.g2::before{background:var(--green2)}
+.kc.am::before{background:var(--amber)}.kc.rd::before{background:var(--red2)}
+.kc.bl::before{background:var(--blue2)}.kc.tl::before{background:var(--teal)}
+.kc.pu::before{background:var(--purple)}
+.kc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.kc-val{font-size:21px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.5px}
+.kc-delta{font-size:9px;margin-top:3px}
+.kc-delta.up{color:var(--green2)}.kc-delta.dn{color:var(--red2)}.kc-delta.nt{color:var(--dim)}
+.kc-spark{margin-top:5px;height:26px}
+
+/* panels */
+.row2{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px}
+.panel{background:var(--bg-card);border-radius:14px;padding:14px 16px;border:1px solid var(--border)}
+.pt{font-size:11px;font-weight:600;color:var(--text);margin-bottom:11px;display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:9px;padding:3px 8px;border-radius:7px;font-weight:600}
+.bg{background:rgba(29,158,117,.18);color:#5dcaa5}
+.ba{background:rgba(230,126,34,.18);color:#f0a055}
+.br{background:rgba(231,76,60,.18);color:#f09595}
+.bb{background:rgba(52,152,219,.18);color:#85b7eb}
+
+.obar{margin-bottom:8px}
+.obar-h{display:flex;justify-content:space-between;margin-bottom:3px}
+.obar-l{font-size:10px;color:var(--muted)}
+.obar-p{font-size:11px;font-weight:600}
+.obar-t{height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden}
+.obar-f{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0}
+.obar-m{font-size:9px;color:var(--dim);margin-top:2px}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pbox{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;padding:8px 10px;text-align:center}
+.pnum{font-size:19px;font-weight:800;line-height:1}
+.plbl{font-size:9px;color:var(--muted);margin-top:2px}
+
+.gov{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.gov:last-child{border-bottom:none;padding-bottom:0}
+.gicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.glbl{font-size:10px;color:var(--muted);flex:1}
+.gsub{font-size:9px;color:var(--dim)}
+.gtrack{width:60px;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.gfill{height:100%;border-radius:3px}
+.gnum{font-size:17px;font-weight:800;width:24px;text-align:right}
+
+.sig{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.sig:last-child{border-bottom:none;padding-bottom:0}
+.sdot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.stxt{font-size:11px;color:var(--muted);line-height:1.55}
+
+.row3{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.phrow{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.phrow:last-child{margin-bottom:0}
+.phlbl{font-size:10px;color:var(--muted);width:100px;flex-shrink:0}
+.phtk{flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden}
+.phfl{height:100%;border-radius:4px;width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.phvl{font-size:11px;font-weight:600;width:26px;text-align:right}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+.trow:last-child{border-bottom:none}
+.tnm{font-size:10px;color:var(--muted)}
+.tdt{font-size:10px;font-weight:600;color:var(--red2)}
+
+.map-section{background:var(--bg-card);border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.map-hdr{padding:11px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.map-hdr-l{display:flex;align-items:center;gap:10px}
+.map-icon{width:30px;height:30px;border-radius:8px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:15px}
+.map-title{font-size:12px;font-weight:600}
+.map-sub{font-size:10px;color:var(--muted)}
+.map-leg{display:flex;gap:12px;flex-wrap:wrap}
+.mleg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.mleg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.map-body{background:#050d17}
+.map-body svg{display:block;width:100%}
+
+/* chart canvases */
+.chart-wrap{position:relative;width:100%}
+.chart-wrap canvas{display:block;width:100%!important}
+
+/* pulse */
+@keyframes pulse-ring{0%{r:6;opacity:.8}70%{r:13;opacity:0}100%{r:6;opacity:0}}
+@keyframes pulse-ring2{0%{r:6;opacity:.5}70%{r:18;opacity:0}100%{r:6;opacity:0}}
+.pulse-ring1{animation:pulse-ring 2s ease-out infinite}
+.pulse-ring2{animation:pulse-ring2 2s ease-out infinite .4s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.kc{animation:fadeUp .5s ease both}
+.kc:nth-child(1){animation-delay:.06s}.kc:nth-child(2){animation-delay:.12s}
+.kc:nth-child(3){animation-delay:.18s}.kc:nth-child(4){animation-delay:.24s}
+.kc:nth-child(5){animation-delay:.30s}.kc:nth-child(6){animation-delay:.36s}
+.kc:nth-child(7){animation-delay:.42s}
+.panel,.health-dial-card{animation:fadeUp .5s ease .3s both}
+
+/* tooltip */
+.map-tooltip{position:fixed;background:#0d1c2c;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;min-width:170px}
+.map-tooltip.show{opacity:1}
+.tt-title{font-weight:700;font-size:12px;margin-bottom:5px}
+.tt-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:3px}
+.tt-lbl{color:var(--muted);font-size:10px}
+.tt-val{font-size:10px;font-weight:600}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="map-tooltip" id="mapTip">
+  <div class="tt-title" id="tipTitle">Plot</div>
+  <div class="tt-row"><span class="tt-lbl">Status</span><span class="tt-val" id="tipStatus"></span></div>
+  <div class="tt-row"><span class="tt-lbl">Tenant</span><span class="tt-val" id="tipTenant"></span></div>
+  <div class="tt-row"><span class="tt-lbl">Type</span><span class="tt-val" id="tipType"></span></div>
+  <div class="tt-row"><span class="tt-lbl">Lease end</span><span class="tt-val" id="tipLease"></span></div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">🏢</div>
+    <div>
+      <div class="hdr-title">Rahayel Auto City — Executive Dashboard</div>
+      <div class="hdr-sub">KEZAD Group · Portfolio Intelligence View</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="date-tag">📅 April 2026</div>
+    <button class="chip active" onclick="setChip(this)">YTD</button>
+    <button class="chip" onclick="setChip(this)">QTD</button>
+    <button class="chip" onclick="setChip(this)">MTD</button>
+    <button class="chip">⚙ Filters</button>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="ni active">Executive</div><div class="ni">Occupancy</div><div class="ni">Leasing Pipeline</div>
+  <div class="ni">Renewals</div><div class="ni">Termination</div><div class="ni">GIS Map</div>
+  <div class="ni">Legal Cases</div><div class="ni">Active Leases</div><div class="ni">All Data</div>
+</div>
+
+<div class="canvas">
+
+  <!-- HEALTH + KPI -->
+  <div class="health-band">
+    <div class="health-dial-card">
+      <div class="dial-label">Portfolio Health Score</div>
+      <div class="dial-wrap">
+        <canvas id="dialCanvas" width="180" height="105"></canvas>
+        <div class="dial-score">
+          <div class="dial-num" id="dialNum" style="color:#27ae60">74</div>
+          <div class="dial-sub">out of 100</div>
+          <div class="dial-grade">GOOD</div>
+        </div>
+      </div>
+      <div class="dial-breakdown">
+        <div class="db-item"><div class="db-val" style="color:#1d9e75">78%</div><div class="db-lbl">Occupancy</div></div>
+        <div class="db-item"><div class="db-val" style="color:#3498db">2.78M</div><div class="db-lbl">Revenue</div></div>
+        <div class="db-item"><div class="db-val" style="color:#e74c3c">42</div><div class="db-lbl">At Risk</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kc gr">
+        <div class="kc-lbl">Portfolio Occ.</div>
+        <div class="kc-val" id="kv0">78.2%</div>
+        <div class="kc-delta up">▲ +1.4pp</div>
+        <div class="kc-spark"><canvas id="sp0" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc g2">
+        <div class="kc-lbl">Showroom Occ.</div>
+        <div class="kc-val" id="kv1">87.2%</div>
+        <div class="kc-delta up">▲ 82.6% area</div>
+        <div class="kc-spark"><canvas id="sp1" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc am">
+        <div class="kc-lbl">Land Occ.</div>
+        <div class="kc-val" id="kv2">70.3%</div>
+        <div class="kc-delta nt">— 47.2% area</div>
+        <div class="kc-spark"><canvas id="sp2" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc bl">
+        <div class="kc-lbl">Annual Rent</div>
+        <div class="kc-val" id="kv3">AED 2.78M</div>
+        <div class="kc-delta up">▲ YTD</div>
+        <div class="kc-spark"><canvas id="sp3" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc tl">
+        <div class="kc-lbl">Active Leases</div>
+        <div class="kc-val" id="kv4">255</div>
+        <div class="kc-delta nt">— 1 expired</div>
+        <div class="kc-spark"><canvas id="sp4" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc rd">
+        <div class="kc-lbl">Vacant Units</div>
+        <div class="kc-val" id="kv5">33</div>
+        <div class="kc-delta dn">▼ 11+22</div>
+        <div class="kc-spark"><canvas id="sp5" height="26" width="148"></canvas></div>
+      </div>
+      <div class="kc pu">
+        <div class="kc-lbl">Units at Risk</div>
+        <div class="kc-val" id="kv6">42</div>
+        <div class="kc-delta dn">▼ Action needed</div>
+        <div class="kc-spark"><canvas id="sp6" height="26" width="148"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row2">
+    <div class="panel">
+      <div class="pt"><span>▤ Space Utilisation</span><span class="badge bg">Live</span></div>
+      <div class="obar"><div class="obar-h"><span class="obar-l">Showroom — units</span><span class="obar-p" style="color:#27ae60">87.2%</span></div><div class="obar-t"><div class="obar-f" style="background: rgb(29, 158, 117); width: 87.2%;" data-w="87.2"></div></div><div class="obar-m">72 occupied · 86 total</div></div>
+      <div class="obar"><div class="obar-h"><span class="obar-l">Showroom — area m²</span><span class="obar-p" style="color:#5dcaa5">82.6%</span></div><div class="obar-t"><div class="obar-f" style="background: rgb(93, 202, 165); width: 82.6%;" data-w="82.6"></div></div><div class="obar-m">19.49K m² total</div></div>
+      <div class="obar"><div class="obar-h"><span class="obar-l">Land — units</span><span class="obar-p" style="color:#f39c12">70.3%</span></div><div class="obar-t"><div class="obar-f" style="background: rgb(230, 126, 34); width: 70.3%;" data-w="70.3"></div></div><div class="obar-m">76 occupied · 111 total</div></div>
+      <div class="obar"><div class="obar-h"><span class="obar-l">Land — area m²</span><span class="obar-p" style="color:#e74c3c">47.2%</span></div><div class="obar-t"><div class="obar-f" style="background: rgb(231, 76, 60); width: 47.2%;" data-w="47.2"></div></div><div class="obar-m">1.45M m² total</div></div>
+      <div class="divider"></div>
+      <div class="pt" style="margin-bottom:9px"><span>⬆ Leasing Pipeline</span><span class="badge bb">YTD</span></div>
+      <div class="pgrid">
+        <div class="pbox"><div class="pnum" style="color:#1d9e75">8</div><div class="plbl">New Leases</div></div>
+        <div class="pbox"><div class="pnum" style="color:#3498db">8</div><div class="plbl">Units Signed</div></div>
+        <div class="pbox"><div class="pnum" style="color:rgba(255,255,255,.2)">0</div><div class="plbl">Renewals MTD</div></div>
+        <div class="pbox"><div class="pnum" style="color:#e74c3c">2</div><div class="plbl">Terminated</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="pt"><span>👥 Top 5 Tenants — Revenue (AED M)</span><span class="badge ba">Concentration risk</span></div>
+      <div class="chart-wrap" style="height:155px"><canvas id="tenChart" height="155" width="527"></canvas></div>
+      <div style="margin-top:7px;padding:6px 10px;background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.2);border-radius:7px;font-size:10px;color:#f0a055">⚠ Top 2 tenants = 89% of land revenue — high dependency</div>
+      <div class="divider"></div>
+      <div class="pt" style="margin-bottom:9px"><span>◎ Activity Type Mix</span></div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="chart-wrap" style="width:86px;height:86px;flex-shrink:0"><canvas id="donutChart" width="86" height="86"></canvas></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#3498db;flex-shrink:0"></div>
+            <div style="font-size:11px;color:var(--muted)">Commercial</div>
+            <div style="font-size:14px;font-weight:800;color:#fff;margin-left:auto">89.9%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#5dcaa5;flex-shrink:0"></div>
+            <div style="font-size:11px;color:var(--muted)">Showroom</div>
+            <div style="font-size:14px;font-weight:800;color:#fff;margin-left:auto">10.1%</div>
+          </div>
+          <div style="font-size:9px;color:var(--dim);margin-top:4px">128M · 14M revenue split</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="pt"><span>🛡 Governance &amp; Exceptions</span><span class="badge br">4 flags</span></div>
+      <div class="gov"><div class="gicon" style="background:rgba(231,76,60,.14)">⚖</div><div style="flex:1"><div class="glbl">Legal cases (total)</div><div class="gsub">9 active · 5 pre-legal</div></div><div class="gtrack"><div class="gfill" style="width:100%;background:#e74c3c"></div></div><div class="gnum" style="color:#e74c3c">14</div></div>
+      <div class="gov"><div class="gicon" style="background:rgba(231,76,60,.1)">📜</div><div style="flex:1"><div class="glbl">Active legal</div><div class="gsub">Oldest: 1974+ days</div></div><div class="gtrack"><div class="gfill" style="width:64%;background:#f09595"></div></div><div class="gnum" style="color:#f09595">9</div></div>
+      <div class="gov"><div class="gicon" style="background:rgba(230,126,34,.14)">✏</div><div style="flex:1"><div class="glbl">Under amendment</div><div class="gsub">8 land · 1 showroom</div></div><div class="gtrack"><div class="gfill" style="width:64%;background:#e67e22"></div></div><div class="gnum" style="color:#e67e22">9</div></div>
+      <div class="gov"><div class="gicon" style="background:rgba(52,152,219,.14)">🔄</div><div style="flex:1"><div class="glbl">Under novation</div><div class="gsub">1 land · 1 showroom</div></div><div class="gtrack"><div class="gfill" style="width:14%;background:#3498db"></div></div><div class="gnum" style="color:#3498db">2</div></div>
+      <div class="gov"><div class="gicon" style="background:rgba(142,68,173,.14)">⏱</div><div style="flex:1"><div class="glbl">Expiring &lt;12 months</div><div class="gsub">Revenue continuity risk</div></div><div class="gtrack"><div class="gfill" style="width:29%;background:#9b59b6"></div></div><div class="gnum" style="color:#9b59b6">4</div></div>
+      <div class="divider"></div>
+      <div class="pt" style="margin-bottom:9px"><span>📅 Cases by Age Bucket</span></div>
+      <div class="chart-wrap" style="height:78px"><canvas id="ageChart" height="78" width="454"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="row3">
+    <div class="panel">
+      <div class="pt"><span>📈 Leasing Trend — Units Signed per Month (2025)</span><span class="badge bg">Plateau from May</span></div>
+      <div class="chart-wrap" style="height:115px"><canvas id="trendChart" height="115" width="869"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="pt"><span>✦ AI Signals</span><span class="badge br">3 flags</span></div>
+      <div class="sig"><div class="sdot" style="background:#e74c3c"></div><div class="stxt"><strong style="color:#e74c3c">Risk — </strong>Land area 47% vs showroom 83%. Idle plots suppressing revenue density. Target Q2.</div></div>
+      <div class="sig"><div class="sdot" style="background:#27ae60"></div><div class="stxt"><strong style="color:#2ecc71">Trend — </strong>Pipeline stable at 12/month since May 2025. Q1 2026 at 8 — monitor Q2.</div></div>
+      <div class="sig"><div class="sdot" style="background:#e67e22"></div><div class="stxt"><strong style="color:#f39c12">Alert — </strong>7 legal cases aged 1,100+ days. Zero renewals this month — escalate.</div></div>
+    </div>
+  </div>
+
+  <!-- PHASE + TERMS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="panel">
+      <div class="pt"><span>◧ Legal Cases by Project Phase</span><span class="badge br">14 total</span></div>
+      <div class="phrow"><div class="phlbl">Rahayel Area 3</div><div class="phtk"><div class="phfl" style="background: rgb(192, 57, 43); width: 50%;" data-w="50"></div></div><div class="phvl">50%</div><div style="font-size:9px;color:var(--dim);margin-left:4px">7 cases</div></div>
+      <div class="phrow"><div class="phlbl">Rahayel Area 1</div><div class="phtk"><div class="phfl" style="background: rgb(52, 152, 219); width: 35.7%;" data-w="35.7"></div></div><div class="phvl">36%</div><div style="font-size:9px;color:var(--dim);margin-left:4px">5 cases</div></div>
+      <div class="phrow"><div class="phlbl">Rahayel Area 2</div><div class="phtk"><div class="phfl" style="background: rgb(230, 126, 34); width: 14.3%;" data-w="14.3"></div></div><div class="phvl">14%</div><div style="font-size:9px;color:var(--dim);margin-left:4px">2 cases</div></div>
+    </div>
+    <div class="panel">
+      <div class="pt"><span>✕ Recent Terminations YTD</span><span class="badge br">2 YTD</span></div>
+      <div class="trow"><div><div class="tnm">Tawaim Investments &amp; Trading Development</div><div style="font-size:9px;color:var(--dim);margin-top:2px">KEZAD Mussafah · Plot 1098</div></div><div class="tdt">4 Feb 2026</div></div>
+      <div class="trow"><div><div class="tnm">Top Speed Performance Parts — Abu Dhabi</div><div style="font-size:9px;color:var(--dim);margin-top:2px">KEZAD Mussafah · Plot 1275</div></div><div class="tdt">22 Jan 2026</div></div>
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.15);border-radius:8px;font-size:10px;color:#f09595">Both Commercial Landlease (Land). AED 1.07M annual rent lost.</div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-section">
+    <div class="map-hdr">
+      <div class="map-hdr-l">
+        <div class="map-icon">📍</div>
+        <div><div class="map-title">GIS — Rahayel Land &amp; Showroom by Status</div><div class="map-sub">Sheikh Khalifa Bin Zayed Int'l Rd (E11) · KEZAD Mussafah · Hover plots for detail</div></div>
+      </div>
+      <div class="map-leg">
+        <div class="mleg"><div class="mleg-sq" style="background:#1d9e75"></div>Occupied</div>
+        <div class="mleg"><div class="mleg-sq" style="background:#e74c3c"></div>Vacant</div>
+        <div class="mleg"><div class="mleg-sq" style="background:#e67e22"></div>Proposed</div>
+        <div class="mleg"><div class="mleg-sq" style="background:#3498db"></div>Amendment</div>
+        <div class="mleg"><div class="mleg-sq" style="background:#9b59b6"></div>Novation</div>
+        <div class="mleg"><div style="width:9px;height:9px;border-radius:50%;background:#e74c3c;animation:pulse-ring 2s ease-out infinite;flex-shrink:0"></div>Vacant pulse</div>
+      </div>
+    </div>
+    <div class="map-body">
+      <svg id="mapSvg" viewBox="0 0 1200 220" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1200" height="220" fill="#050d17"></rect>
+        <rect x="0" y="158" width="1200" height="22" fill="#0c1d2e"></rect>
+        <rect x="0" y="100" width="20" height="120" fill="#0c1d2e"></rect>
+        <text x="600" y="172" font-size="10" fill="#1e3a55" text-anchor="middle" font-family="sans-serif">Sheikh Khalifa Bin Zayed Int'l Rd (E11)</text>
+        <text x="10" y="130" font-size="8" fill="#1e3a55" font-family="sans-serif" transform="rotate(-90,10,130)">Al Mahdar St</text>
+        <rect x="260" y="58" width="90" height="16" rx="3" fill="rgba(192,57,43,.18)" stroke="rgba(192,57,43,.35)" stroke-width="1"></rect>
+        <text x="305" y="70" font-size="8" fill="rgba(255,255,255,.5)" text-anchor="middle" font-family="sans-serif">Rahayel Area 1</text>
+        <rect x="578" y="50" width="90" height="16" rx="3" fill="rgba(52,152,219,.18)" stroke="rgba(52,152,219,.35)" stroke-width="1"></rect>
+        <text x="623" y="62" font-size="8" fill="rgba(255,255,255,.5)" text-anchor="middle" font-family="sans-serif">Rahayel Area 2</text>
+        <rect x="908" y="58" width="90" height="16" rx="3" fill="rgba(230,126,34,.18)" stroke="rgba(230,126,34,.35)" stroke-width="1"></rect>
+        <text x="953" y="70" font-size="8" fill="rgba(255,255,255,.5)" text-anchor="middle" font-family="sans-serif">Rahayel Area 3</text>
+        <!-- Plots -->
+        <rect x="28" y="108" width="22" height="14" rx="2" fill="#e74c3c" opacity=".6" class="mp" data-p="P-001" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="52" y="108" width="22" height="14" rx="2" fill="#e74c3c" opacity=".6" class="mp" data-p="P-002" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="28" y="125" width="22" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-003" data-s="Occupied" data-t="Block 7 Investment" data-ty="Land" data-l="Dec 2075" style="cursor: pointer;"></rect>
+        <rect x="52" y="125" width="22" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-004" data-s="Occupied" data-t="Mirad Gulf Invest." data-ty="Land" data-l="Mar 2076" style="cursor: pointer;"></rect>
+        <rect x="76" y="125" width="22" height="22" rx="2" fill="#e74c3c" class="mp" data-p="P-005" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="100" y="125" width="22" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-006" data-s="Occupied" data-t="Al Khail Auctions" data-ty="Land" data-l="Jun 2074" style="cursor: pointer;"></rect>
+        <rect x="76" y="106" width="22" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-007" data-s="Occupied" data-t="Mohamed Abdulrahma." data-ty="Land" data-l="Jan 2070" style="cursor: pointer;"></rect>
+        <rect x="100" y="106" width="22" height="17" rx="2" fill="#e67e22" class="mp" data-p="P-008" data-s="Proposed" data-t="New inquiry" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="135" y="100" width="20" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-011" data-s="Occupied" data-t="Gulf Nexus Motors" data-ty="Showroom" data-l="Feb 2031" style="cursor: pointer;"></rect>
+        <rect x="157" y="100" width="20" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-012" data-s="Occupied" data-t="Shabab Aldar Auto" data-ty="Showroom" data-l="Dec 2075" style="cursor: pointer;"></rect>
+        <rect x="179" y="100" width="20" height="15" rx="2" fill="#e74c3c" class="mp" data-p="P-013" data-s="Vacant" data-t="—" data-ty="Showroom" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="201" y="100" width="20" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-014" data-s="Occupied" data-t="Dunes Gourmet" data-ty="Showroom" data-l="Mar 2031" style="cursor: pointer;"></rect>
+        <rect x="223" y="100" width="20" height="15" rx="2" fill="#e67e22" class="mp" data-p="P-015" data-s="Proposed" data-t="Under negotiation" data-ty="Showroom" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="135" y="117" width="20" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-016" data-s="Occupied" data-t="W Investment LLC" data-ty="Land" data-l="Dec 2075" style="cursor: pointer;"></rect>
+        <rect x="157" y="117" width="20" height="16" rx="2" fill="#3498db" class="mp" data-p="P-017" data-s="Amendment" data-t="Horizena Real Estate" data-ty="Land" data-l="Mar 2076" style="cursor: pointer;"></rect>
+        <rect x="179" y="117" width="20" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-018" data-s="Occupied" data-t="Emirates Sdeira" data-ty="Land" data-l="Jan 2076" style="cursor: pointer;"></rect>
+        <rect x="201" y="117" width="20" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-019" data-s="Occupied" data-t="Smart Cars Trading" data-ty="Land" data-l="Jun 2073" style="cursor: pointer;"></rect>
+        <rect x="223" y="117" width="20" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-020" data-s="Occupied" data-t="Motor X Track" data-ty="Land" data-l="May 2072" style="cursor: pointer;"></rect>
+        <rect x="135" y="135" width="20" height="17" rx="2" fill="#e67e22" class="mp" data-p="P-021" data-s="Proposed" data-t="Under review" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="157" y="135" width="20" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-022" data-s="Occupied" data-t="ENOC Retail LLC" data-ty="Land" data-l="Nov 2071" style="cursor: pointer;"></rect>
+        <rect x="179" y="135" width="20" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-023" data-s="Occupied" data-t="Baniyas Cars LLC" data-ty="Land" data-l="Aug 2070" style="cursor: pointer;"></rect>
+        <rect x="201" y="135" width="20" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-024" data-s="Occupied" data-t="Technical Resources" data-ty="Land" data-l="Dec 2069" style="cursor: pointer;"></rect>
+        <rect x="223" y="135" width="20" height="17" rx="2" fill="#e74c3c" class="mp" data-p="P-025" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="260" y="88" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-031" data-s="Occupied" data-t="Blue Waves Service" data-ty="Land" data-l="Jan 2023" style="cursor: pointer;"></rect>
+        <rect x="286" y="88" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-032" data-s="Occupied" data-t="Al Fahad Alhadith" data-ty="Land" data-l="Feb 2022" style="cursor: pointer;"></rect>
+        <rect x="312" y="88" width="24" height="16" rx="2" fill="#e74c3c" class="mp" data-p="P-033" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="338" y="88" width="24" height="16" rx="2" fill="#9b59b6" class="mp" data-p="P-034" data-s="Novation" data-t="I Design Solo" data-ty="Land" data-l="Sep 2022" style="cursor: pointer;"></rect>
+        <rect x="364" y="88" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-035" data-s="Occupied" data-t="Car House Auto" data-ty="Land" data-l="Oct 2022" style="cursor: pointer;"></rect>
+        <rect x="260" y="106" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-036" data-s="Occupied" data-t="Al Khalid Auto LLC" data-ty="Land" data-l="Nov 2023" style="cursor: pointer;"></rect>
+        <rect x="286" y="106" width="24" height="16" rx="2" fill="#e74c3c" class="mp" data-p="P-037" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="312" y="106" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-038" data-s="Occupied" data-t="Super Car Tuning" data-ty="Land" data-l="Aug 2023" style="cursor: pointer;"></rect>
+        <rect x="338" y="106" width="24" height="16" rx="2" fill="#3498db" class="mp" data-p="P-039" data-s="Amendment" data-t="Royal Swiss Auto" data-ty="Land" data-l="Jul 2022" style="cursor: pointer;"></rect>
+        <rect x="364" y="106" width="24" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-040" data-s="Occupied" data-t="Albeshara Property" data-ty="Land" data-l="Apr 2025" style="cursor: pointer;"></rect>
+        <rect x="260" y="124" width="24" height="18" rx="2" fill="#e67e22" class="mp" data-p="P-041" data-s="Proposed" data-t="New inquiry" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="286" y="124" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-042" data-s="Occupied" data-t="Osan Auto Repair" data-ty="Land" data-l="Dec 2074" style="cursor: pointer;"></rect>
+        <rect x="312" y="124" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-043" data-s="Occupied" data-t="KEZAD Tenant A" data-ty="Land" data-l="Oct 2072" style="cursor: pointer;"></rect>
+        <rect x="338" y="124" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-044" data-s="Occupied" data-t="KEZAD Tenant B" data-ty="Land" data-l="Jun 2071" style="cursor: pointer;"></rect>
+        <rect x="364" y="124" width="24" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-045" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="400" y="78" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-051" data-s="Occupied" data-t="KEZAD Tenant C" data-ty="Land" data-l="Dec 2073" style="cursor: pointer;"></rect>
+        <rect x="432" y="78" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-052" data-s="Occupied" data-t="KEZAD Tenant D" data-ty="Land" data-l="Nov 2072" style="cursor: pointer;"></rect>
+        <rect x="464" y="78" width="30" height="20" rx="2" fill="#e74c3c" class="mp" data-p="P-053" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="496" y="78" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-054" data-s="Occupied" data-t="KEZAD Tenant E" data-ty="Land" data-l="Sep 2071" style="cursor: pointer;"></rect>
+        <rect x="528" y="78" width="30" height="20" rx="2" fill="#e67e22" class="mp" data-p="P-055" data-s="Proposed" data-t="In negotiation" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="400" y="100" width="30" height="20" rx="2" fill="#e74c3c" opacity=".6" class="mp" data-p="P-056" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="432" y="100" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-057" data-s="Occupied" data-t="KEZAD Tenant F" data-ty="Land" data-l="Mar 2070" style="cursor: pointer;"></rect>
+        <rect x="464" y="100" width="30" height="20" rx="2" fill="#9b59b6" class="mp" data-p="P-058" data-s="Novation" data-t="KEZAD Tenant G" data-ty="Land" data-l="Jul 2069" style="cursor: pointer;"></rect>
+        <rect x="496" y="100" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-059" data-s="Occupied" data-t="KEZAD Tenant H" data-ty="Land" data-l="Feb 2068" style="cursor: pointer;"></rect>
+        <rect x="528" y="100" width="30" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-060" data-s="Occupied" data-t="KEZAD Tenant I" data-ty="Land" data-l="Jan 2067" style="cursor: pointer;"></rect>
+        <rect x="400" y="122" width="30" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-061" data-s="Occupied" data-t="KEZAD Tenant J" data-ty="Land" data-l="Dec 2066" style="cursor: pointer;"></rect>
+        <rect x="432" y="122" width="30" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-062" data-s="Occupied" data-t="KEZAD Tenant K" data-ty="Land" data-l="Nov 2065" style="cursor: pointer;"></rect>
+        <rect x="464" y="122" width="30" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-063" data-s="Occupied" data-t="KEZAD Tenant L" data-ty="Land" data-l="Oct 2064" style="cursor: pointer;"></rect>
+        <rect x="496" y="122" width="30" height="22" rx="2" fill="#e74c3c" class="mp" data-p="P-064" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="528" y="122" width="30" height="22" rx="2" fill="#1d9e75" class="mp" data-p="P-065" data-s="Occupied" data-t="KEZAD Tenant M" data-ty="Land" data-l="Sep 2063" style="cursor: pointer;"></rect>
+        <rect x="576" y="70" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-071" data-s="Occupied" data-t="KEZAD Tenant N" data-ty="Land" data-l="Aug 2062" style="cursor: pointer;"></rect>
+        <rect x="606" y="70" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-072" data-s="Occupied" data-t="KEZAD Tenant O" data-ty="Land" data-l="Jul 2061" style="cursor: pointer;"></rect>
+        <rect x="636" y="70" width="28" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-073" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="666" y="70" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-074" data-s="Occupied" data-t="KEZAD Tenant P" data-ty="Land" data-l="Jun 2060" style="cursor: pointer;"></rect>
+        <rect x="696" y="70" width="28" height="18" rx="2" fill="#e67e22" class="mp" data-p="P-075" data-s="Proposed" data-t="In review" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="576" y="90" width="28" height="18" rx="2" fill="#3498db" class="mp" data-p="P-076" data-s="Amendment" data-t="KEZAD Tenant Q" data-ty="Land" data-l="May 2059" style="cursor: pointer;"></rect>
+        <rect x="606" y="90" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-077" data-s="Occupied" data-t="KEZAD Tenant R" data-ty="Land" data-l="Apr 2058" style="cursor: pointer;"></rect>
+        <rect x="636" y="90" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-078" data-s="Occupied" data-t="KEZAD Tenant S" data-ty="Land" data-l="Mar 2057" style="cursor: pointer;"></rect>
+        <rect x="666" y="90" width="28" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-079" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="696" y="90" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-080" data-s="Occupied" data-t="KEZAD Tenant T" data-ty="Land" data-l="Feb 2056" style="cursor: pointer;"></rect>
+        <rect x="576" y="110" width="28" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-081" data-s="Occupied" data-t="KEZAD Tenant U" data-ty="Land" data-l="Jan 2055" style="cursor: pointer;"></rect>
+        <rect x="606" y="110" width="28" height="20" rx="2" fill="#e67e22" class="mp" data-p="P-082" data-s="Proposed" data-t="New inquiry" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="636" y="110" width="28" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-083" data-s="Occupied" data-t="KEZAD Tenant V" data-ty="Land" data-l="Dec 2053" style="cursor: pointer;"></rect>
+        <rect x="666" y="110" width="28" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-084" data-s="Occupied" data-t="KEZAD Tenant W" data-ty="Land" data-l="Nov 2052" style="cursor: pointer;"></rect>
+        <rect x="696" y="110" width="28" height="20" rx="2" fill="#9b59b6" class="mp" data-p="P-085" data-s="Novation" data-t="KEZAD Tenant X" data-ty="Land" data-l="Oct 2051" style="cursor: pointer;"></rect>
+        <rect x="576" y="132" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-086" data-s="Occupied" data-t="KEZAD Tenant Y" data-ty="Land" data-l="Sep 2050" style="cursor: pointer;"></rect>
+        <rect x="606" y="132" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-087" data-s="Occupied" data-t="KEZAD Tenant Z" data-ty="Land" data-l="Aug 2049" style="cursor: pointer;"></rect>
+        <rect x="636" y="132" width="28" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-088" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="666" y="132" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-089" data-s="Occupied" data-t="KEZAD Tenant AA" data-ty="Land" data-l="Jul 2048" style="cursor: pointer;"></rect>
+        <rect x="696" y="132" width="28" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-090" data-s="Occupied" data-t="KEZAD Tenant BB" data-ty="Land" data-l="Jun 2047" style="cursor: pointer;"></rect>
+        <rect x="750" y="64" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-091" data-s="Occupied" data-t="KEZAD Tenant CC" data-ty="Land" data-l="May 2046" style="cursor: pointer;"></rect>
+        <rect x="778" y="64" width="26" height="17" rx="2" fill="#e74c3c" class="mp" data-p="P-092" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="806" y="64" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-093" data-s="Occupied" data-t="KEZAD Tenant DD" data-ty="Land" data-l="Apr 2045" style="cursor: pointer;"></rect>
+        <rect x="834" y="64" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-094" data-s="Occupied" data-t="KEZAD Tenant EE" data-ty="Land" data-l="Mar 2044" style="cursor: pointer;"></rect>
+        <rect x="862" y="64" width="26" height="17" rx="2" fill="#e67e22" class="mp" data-p="P-095" data-s="Proposed" data-t="In negotiation" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="750" y="83" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-096" data-s="Occupied" data-t="KEZAD Tenant FF" data-ty="Land" data-l="Feb 2043" style="cursor: pointer;"></rect>
+        <rect x="778" y="83" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-097" data-s="Occupied" data-t="KEZAD Tenant GG" data-ty="Land" data-l="Jan 2042" style="cursor: pointer;"></rect>
+        <rect x="806" y="83" width="26" height="17" rx="2" fill="#3498db" class="mp" data-p="P-098" data-s="Amendment" data-t="KEZAD Tenant HH" data-ty="Land" data-l="Dec 2040" style="cursor: pointer;"></rect>
+        <rect x="834" y="83" width="26" height="17" rx="2" fill="#e74c3c" class="mp" data-p="P-099" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="862" y="83" width="26" height="17" rx="2" fill="#1d9e75" class="mp" data-p="P-100" data-s="Occupied" data-t="KEZAD Tenant II" data-ty="Land" data-l="Nov 2039" style="cursor: pointer;"></rect>
+        <rect x="750" y="102" width="26" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-101" data-s="Occupied" data-t="KEZAD Tenant JJ" data-ty="Land" data-l="Oct 2038" style="cursor: pointer;"></rect>
+        <rect x="778" y="102" width="26" height="18" rx="2" fill="#e67e22" class="mp" data-p="P-102" data-s="Proposed" data-t="New inquiry" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="806" y="102" width="26" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-103" data-s="Occupied" data-t="KEZAD Tenant KK" data-ty="Land" data-l="Sep 2037" style="cursor: pointer;"></rect>
+        <rect x="834" y="102" width="26" height="18" rx="2" fill="#9b59b6" class="mp" data-p="P-104" data-s="Novation" data-t="KEZAD Tenant LL" data-ty="Land" data-l="Aug 2036" style="cursor: pointer;"></rect>
+        <rect x="862" y="102" width="26" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-105" data-s="Occupied" data-t="KEZAD Tenant MM" data-ty="Land" data-l="Jul 2035" style="cursor: pointer;"></rect>
+        <rect x="750" y="122" width="26" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-106" data-s="Occupied" data-t="KEZAD Tenant NN" data-ty="Land" data-l="Jun 2034" style="cursor: pointer;"></rect>
+        <rect x="778" y="122" width="26" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-107" data-s="Occupied" data-t="KEZAD Tenant OO" data-ty="Land" data-l="May 2033" style="cursor: pointer;"></rect>
+        <rect x="806" y="122" width="26" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-108" data-s="Occupied" data-t="KEZAD Tenant PP" data-ty="Land" data-l="Apr 2032" style="cursor: pointer;"></rect>
+        <rect x="834" y="122" width="26" height="20" rx="2" fill="#e74c3c" class="mp" data-p="P-109" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="862" y="122" width="26" height="20" rx="2" fill="#1d9e75" class="mp" data-p="P-110" data-s="Occupied" data-t="KEZAD Tenant QQ" data-ty="Land" data-l="Mar 2031" style="cursor: pointer;"></rect>
+        <rect x="906" y="78" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-111" data-s="Occupied" data-t="KEZAD Tenant RR" data-ty="Showroom" data-l="Feb 2030" style="cursor: pointer;"></rect>
+        <rect x="930" y="78" width="22" height="15" rx="2" fill="#e74c3c" class="mp" data-p="P-112" data-s="Vacant" data-t="—" data-ty="Showroom" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="954" y="78" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-113" data-s="Occupied" data-t="KEZAD Tenant SS" data-ty="Showroom" data-l="Jan 2029" style="cursor: pointer;"></rect>
+        <rect x="978" y="78" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-114" data-s="Occupied" data-t="KEZAD Tenant TT" data-ty="Showroom" data-l="Dec 2027" style="cursor: pointer;"></rect>
+        <rect x="1002" y="78" width="22" height="15" rx="2" fill="#e67e22" class="mp" data-p="P-115" data-s="Proposed" data-t="In review" data-ty="Showroom" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="906" y="95" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-116" data-s="Occupied" data-t="KEZAD Tenant UU" data-ty="Showroom" data-l="Nov 2026" style="cursor: pointer;"></rect>
+        <rect x="930" y="95" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-117" data-s="Occupied" data-t="KEZAD Tenant VV" data-ty="Showroom" data-l="Oct 2025" style="cursor: pointer;"></rect>
+        <rect x="954" y="95" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-118" data-s="Occupied" data-t="KEZAD Tenant WW" data-ty="Showroom" data-l="Sep 2025" style="cursor: pointer;"></rect>
+        <rect x="978" y="95" width="22" height="15" rx="2" fill="#3498db" class="mp" data-p="P-119" data-s="Amendment" data-t="KEZAD Tenant XX" data-ty="Showroom" data-l="Aug 2025" style="cursor: pointer;"></rect>
+        <rect x="1002" y="95" width="22" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-120" data-s="Occupied" data-t="KEZAD Tenant YY" data-ty="Showroom" data-l="Jul 2025" style="cursor: pointer;"></rect>
+        <rect x="906" y="112" width="22" height="16" rx="2" fill="#e74c3c" class="mp" data-p="P-121" data-s="Vacant" data-t="—" data-ty="Showroom" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="930" y="112" width="22" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-122" data-s="Occupied" data-t="KEZAD Tenant ZZ" data-ty="Showroom" data-l="Jun 2025" style="cursor: pointer;"></rect>
+        <rect x="954" y="112" width="22" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-123" data-s="Occupied" data-t="KEZAD Tenant A2" data-ty="Showroom" data-l="May 2025" style="cursor: pointer;"></rect>
+        <rect x="978" y="112" width="22" height="16" rx="2" fill="#1d9e75" class="mp" data-p="P-124" data-s="Occupied" data-t="KEZAD Tenant B2" data-ty="Showroom" data-l="Apr 2025" style="cursor: pointer;"></rect>
+        <rect x="1002" y="112" width="22" height="16" rx="2" fill="#e67e22" class="mp" data-p="P-125" data-s="Proposed" data-t="Awaiting sign-off" data-ty="Showroom" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="906" y="130" width="22" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-126" data-s="Occupied" data-t="KEZAD Tenant C2" data-ty="Showroom" data-l="Mar 2025" style="cursor: pointer;"></rect>
+        <rect x="930" y="130" width="22" height="18" rx="2" fill="#9b59b6" class="mp" data-p="P-127" data-s="Novation" data-t="KEZAD Tenant D2" data-ty="Showroom" data-l="Feb 2025" style="cursor: pointer;"></rect>
+        <rect x="954" y="130" width="22" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-128" data-s="Occupied" data-t="KEZAD Tenant E2" data-ty="Showroom" data-l="Jan 2025" style="cursor: pointer;"></rect>
+        <rect x="978" y="130" width="22" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-129" data-s="Occupied" data-t="KEZAD Tenant F2" data-ty="Showroom" data-l="Dec 2024" style="cursor: pointer;"></rect>
+        <rect x="1002" y="130" width="22" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-130" data-s="Vacant" data-t="—" data-ty="Showroom" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="1046" y="86" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-131" data-s="Occupied" data-t="KEZAD Tenant G2" data-ty="Land" data-l="Nov 2024" style="cursor: pointer;"></rect>
+        <rect x="1072" y="86" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-132" data-s="Occupied" data-t="KEZAD Tenant H2" data-ty="Land" data-l="Oct 2024" style="cursor: pointer;"></rect>
+        <rect x="1098" y="86" width="24" height="15" rx="2" fill="#e74c3c" class="mp" data-p="P-133" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="1124" y="86" width="24" height="15" rx="2" fill="#e67e22" class="mp" data-p="P-134" data-s="Proposed" data-t="New inquiry" data-ty="Land" data-l="Pending" style="cursor: pointer;"></rect>
+        <rect x="1150" y="86" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-135" data-s="Occupied" data-t="KEZAD Tenant I2" data-ty="Land" data-l="Sep 2024" style="cursor: pointer;"></rect>
+        <rect x="1046" y="103" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-136" data-s="Occupied" data-t="KEZAD Tenant J2" data-ty="Land" data-l="Aug 2024" style="cursor: pointer;"></rect>
+        <rect x="1072" y="103" width="24" height="15" rx="2" fill="#3498db" class="mp" data-p="P-137" data-s="Amendment" data-t="KEZAD Tenant K2" data-ty="Land" data-l="Jul 2024" style="cursor: pointer;"></rect>
+        <rect x="1098" y="103" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-138" data-s="Occupied" data-t="KEZAD Tenant L2" data-ty="Land" data-l="Jun 2024" style="cursor: pointer;"></rect>
+        <rect x="1124" y="103" width="24" height="15" rx="2" fill="#1d9e75" class="mp" data-p="P-139" data-s="Occupied" data-t="KEZAD Tenant M2" data-ty="Land" data-l="May 2024" style="cursor: pointer;"></rect>
+        <rect x="1150" y="103" width="24" height="15" rx="2" fill="#9b59b6" class="mp" data-p="P-140" data-s="Novation" data-t="KEZAD Tenant N2" data-ty="Land" data-l="Apr 2024" style="cursor: pointer;"></rect>
+        <rect x="1046" y="120" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-141" data-s="Occupied" data-t="KEZAD Tenant O2" data-ty="Land" data-l="Mar 2024" style="cursor: pointer;"></rect>
+        <rect x="1072" y="120" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-142" data-s="Occupied" data-t="KEZAD Tenant P2" data-ty="Land" data-l="Feb 2024" style="cursor: pointer;"></rect>
+        <rect x="1098" y="120" width="24" height="18" rx="2" fill="#e74c3c" class="mp" data-p="P-143" data-s="Vacant" data-t="—" data-ty="Land" data-l="—" style="cursor: pointer;"></rect>
+        <rect x="1124" y="120" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-144" data-s="Occupied" data-t="KEZAD Tenant Q2" data-ty="Land" data-l="Jan 2024" style="cursor: pointer;"></rect>
+        <rect x="1150" y="120" width="24" height="18" rx="2" fill="#1d9e75" class="mp" data-p="P-145" data-s="Occupied" data-t="KEZAD Tenant R2" data-ty="Land" data-l="Dec 2023" style="cursor: pointer;"></rect>
+        <!-- Pulse dots on vacant plots -->
+        <g>
+          <circle cx="39" cy="115" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="39" cy="115" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="39" cy="115" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="323" cy="96" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="323" cy="96" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="323" cy="96" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="479" cy="88" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="479" cy="88" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="479" cy="88" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="651" cy="79" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="651" cy="79" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="651" cy="79" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="791" cy="72" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="791" cy="72" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="791" cy="72" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="941" cy="86" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="941" cy="86" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="941" cy="86" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <g>
+          <circle cx="1110" cy="94" r="5" fill="#e74c3c" opacity=".8"></circle>
+          <circle cx="1110" cy="94" r="5" fill="none" stroke="#e74c3c" stroke-width="2" class="pulse-ring1"></circle>
+          <circle cx="1110" cy="94" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" class="pulse-ring2"></circle>
+        </g>
+        <rect x="22" y="195" width="72" height="16" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)" stroke-width="1"></rect>
+        <text x="58" y="207" font-size="8" fill="rgba(255,255,255,0.3)" text-anchor="middle" font-family="sans-serif">KEZAD · E11</text>
+      </svg>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-top:1px solid var(--border)">
+    <div style="font-size:10px;color:var(--dim)">Rahayel Auto City Executive Dashboard · KEZAD Group · April 2026</div>
+    <div style="font-size:10px;color:var(--dim)">v3.1 · Standalone Edition — No external dependencies</div>
+  </div>
+
+</div>
+
+<script>
+/* ── NAV / CHIPS ── */
+function setChip(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active')}
+document.querySelectorAll('.ni').forEach(n=>n.addEventListener('click',function(){document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));this.classList.add('active')}));
+
+/* ── PURE CANVAS HELPERS ── */
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(x,y,w,h,r)}
+  else{ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath()}
+}
+
+/* ── DIAL ── */
+function drawDial(score){
+  const c=document.getElementById('dialCanvas');
+  const ctx=c.getContext('2d');
+  const W=180,H=105,cx=90,cy=92,R=70;
+  ctx.clearRect(0,0,W,H);
+  // track
+  ctx.beginPath();ctx.arc(cx,cy,R,Math.PI,0);
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=12;ctx.lineCap='round';ctx.stroke();
+  // coloured arc
+  const startA=Math.PI,endA=Math.PI+(score/100)*Math.PI;
+  const grad=ctx.createLinearGradient(cx-R,cy,cx+R,cy);
+  grad.addColorStop(0,'#e74c3c');grad.addColorStop(0.45,'#e67e22');grad.addColorStop(1,'#27ae60');
+  ctx.beginPath();ctx.arc(cx,cy,R,startA,endA);
+  ctx.strokeStyle=grad;ctx.lineWidth=12;ctx.lineCap='round';ctx.stroke();
+  // tick labels
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='8px Segoe UI,sans-serif';ctx.textAlign='center';
+  ctx.fillText('0',cx-R-4,cy+14);ctx.fillText('50',cx,cy-R-6);ctx.fillText('100',cx+R+4,cy+14);
+}
+
+function animateDial(target){
+  let cur=0;const dur=1400;const s=performance.now();
+  const numEl=document.getElementById('dialNum');
+  function tick(now){
+    const p=Math.min((now-s)/dur,1);const e=1-Math.pow(1-p,3);
+    cur=Math.round(target*e);
+    drawDial(cur);numEl.textContent=cur;
+    if(p<1)requestAnimationFrame(tick);else{drawDial(target);numEl.textContent=target}
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ── COUNTERS ── */
+const kvDefs=[
+  {id:'kv0',target:78.2,fmt:v=>v.toFixed(1)+'%'},
+  {id:'kv1',target:87.2,fmt:v=>v.toFixed(1)+'%'},
+  {id:'kv2',target:70.3,fmt:v=>v.toFixed(1)+'%'},
+  {id:'kv3',target:2.78,fmt:v=>'AED '+v.toFixed(2)+'M'},
+  {id:'kv4',target:255,fmt:v=>Math.round(v)+''},
+  {id:'kv5',target:33,fmt:v=>Math.round(v)+''},
+  {id:'kv6',target:42,fmt:v=>Math.round(v)+''},
+];
+function animateCounters(){
+  kvDefs.forEach(def=>{
+    const el=document.getElementById(def.id);
+    const dur=1400;const s=performance.now();
+    function tick(now){
+      const p=Math.min((now-s)/dur,1);const e=1-Math.pow(1-p,3);
+      el.textContent=def.fmt(def.target*e);
+      if(p<1)requestAnimationFrame(tick);else el.textContent=def.fmt(def.target);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ── SPARKLINES ── */
+const sparkDefs=[
+  {id:'sp0',data:[68,71,72,74,75,76,77,78,78.2],color:'#1d9e75'},
+  {id:'sp1',data:[80,82,83,84,85,85,86,87,87.2],color:'#27ae60'},
+  {id:'sp2',data:[64,65,67,68,69,69,70,70,70.3],color:'#e67e22'},
+  {id:'sp3',data:[1.2,1.5,1.8,2.0,2.2,2.4,2.6,2.7,2.78],color:'#3498db'},
+  {id:'sp4',data:[230,238,242,246,249,251,252,254,255],color:'#5dcaa5'},
+  {id:'sp5',data:[38,37,36,36,35,35,34,33,33],color:'#e74c3c'},
+  {id:'sp6',data:[50,48,47,46,45,44,43,43,42],color:'#9b59b6'},
+];
+function drawSparkline(canvasId,data,color){
+  const c=document.getElementById(canvasId);
+  if(!c)return;
+  const W=c.parentElement.offsetWidth||80,H=26;
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
+  const pts=data.map((v,i)=>({x:(i/(data.length-1))*W,y:H-2-((v-mn)/rng)*(H-6)}));
+  // fill
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++){const mx2=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(mx2,pts[i-1].y,mx2,pts[i].y,pts[i].x,pts[i].y);}
+  ctx.lineTo(pts[pts.length-1].x,H);ctx.lineTo(0,H);ctx.closePath();
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,color+'44');g.addColorStop(1,color+'00');
+  ctx.fillStyle=g;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++){const mx2=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(mx2,pts[i-1].y,mx2,pts[i].y,pts[i].x,pts[i].y);}
+  ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.stroke();
+}
+
+/* ── HORIZONTAL BAR (TENANTS) ── */
+function drawTenantChart(){
+  const c=document.getElementById('tenChart');
+  const W=c.parentElement.offsetWidth||400,H=155;
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const labels=['Elite Cars','Mohamed A.','Al Khail','Mirad Gulf','Block 7'];
+  const vals=[2,4,5,17,61];
+  const colors=['#1e3d5c','#1e3d5c','#1e3d5c','#922b21','#c0392b'];
+  const mx=Math.max(...vals);
+  const padL=90,padR=50,padT=8,rowH=26,gap=4;
+  ctx.font='10px Segoe UI,sans-serif';
+  vals.forEach((v,i)=>{
+    const y=padT+i*(rowH+gap);
+    const bw=(v/mx)*(W-padL-padR);
+    // label
+    ctx.fillStyle='rgba(255,255,255,0.6)';ctx.textAlign='right';
+    ctx.fillText(labels[i],padL-8,y+rowH/2+4);
+    // bar
+    roundRect(ctx,padL,y,bw,rowH,3);
+    ctx.fillStyle=colors[i];ctx.fill();
+    // value
+    ctx.fillStyle='rgba(255,255,255,0.8)';ctx.textAlign='left';ctx.font='10px Segoe UI,sans-serif';
+    ctx.fillText(v+'M',padL+bw+6,y+rowH/2+4);
+  });
+}
+
+/* ── DONUT (ACTIVITY MIX) ── */
+function drawDonut(){
+  const c=document.getElementById('donutChart');
+  c.width=86;c.height=86;
+  const ctx=c.getContext('2d');
+  const cx=43,cy=43,R=36,r=24;
+  // commercial
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+2*Math.PI*0.899);
+  ctx.closePath();ctx.fillStyle='#2980b9';ctx.fill();
+  // showroom
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,R,-Math.PI/2+2*Math.PI*0.899,-Math.PI/2+2*Math.PI);
+  ctx.closePath();ctx.fillStyle='#5dcaa5';ctx.fill();
+  // hole
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.fillStyle='#0d1c2c';ctx.fill();
+}
+
+/* ── AGE BUCKET BAR ── */
+function drawAgeChart(){
+  const c=document.getElementById('ageChart');
+  const W=c.parentElement.offsetWidth||300,H=78;
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const labels=['903–1171','1172–1438','1439–1706','1707–1973','1974+'];
+  const vals=[3,7,2,1,1];
+  const colors=['#2980b9','#c0392b','#e67e22','#9b59b6','#9b59b6'];
+  const mx=8,n=labels.length,padB=22,padT=6;
+  const barW=(W-20)/(n*1.6),gap=(W-20-barW*n)/(n+1);
+  vals.forEach((v,i)=>{
+    const x=10+gap+(i*(barW+gap));
+    const bh=(v/mx)*(H-padB-padT);
+    const y=H-padB-bh;
+    roundRect(ctx,x,y,barW,bh,3);
+    ctx.fillStyle=colors[i];ctx.fill();
+    // label
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='8px Segoe UI,sans-serif';ctx.textAlign='center';
+    ctx.fillText(labels[i],x+barW/2,H-6);
+    // value
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px Segoe UI,sans-serif';
+    ctx.fillText(v,x+barW/2,y-3);
+  });
+}
+
+/* ── TREND BAR ── */
+function drawTrendChart(){
+  const c=document.getElementById('trendChart');
+  const W=c.parentElement.offsetWidth||600,H=115;
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const vals=[3,4,7,8,12,12,12,12,12,12,12,12];
+  const mx=14,n=12,padB=24,padT=10,padL=10,padR=10;
+  const barW=(W-padL-padR)/(n*1.5),gap=(W-padL-padR-barW*n)/(n+1);
+  // grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  [0,4,8,12].forEach(v=>{
+    const y=H-padB-(v/mx)*(H-padB-padT);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='8px Segoe UI,sans-serif';ctx.textAlign='right';
+    ctx.fillText(v,padL-2,y+3);
+  });
+  vals.forEach((v,i)=>{
+    const x=padL+gap+(i*(barW+gap));
+    const bh=(v/mx)*(H-padB-padT);
+    const y=H-padB-bh;
+    roundRect(ctx,x,y,barW,bh,3);
+    ctx.fillStyle=i<4?'#1e3d5c':'#c0392b';ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='8px Segoe UI,sans-serif';ctx.textAlign='center';
+    ctx.fillText(labels[i],x+barW/2,H-6);
+    if(v>0){ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px Segoe UI,sans-serif';ctx.fillText(v,x+barW/2,y-3);}
+  });
+}
+
+/* ── BAR FILLS ── */
+function animateBars(){
+  document.querySelectorAll('.obar-f[data-w],.phfl[data-w]').forEach(el=>{
+    setTimeout(()=>{el.style.width=el.dataset.w+'%'},500);
+  });
+}
+
+/* ── MAP TOOLTIP ── */
+const tip=document.getElementById('mapTip');
+document.querySelectorAll('.mp').forEach(el=>{
+  el.style.cursor='pointer';
+  el.addEventListener('mouseenter',function(e){
+    document.getElementById('tipTitle').textContent='Plot '+this.dataset.p;
+    document.getElementById('tipStatus').textContent=this.dataset.s;
+    document.getElementById('tipTenant').textContent=this.dataset.t;
+    document.getElementById('tipType').textContent=this.dataset.ty;
+    document.getElementById('tipLease').textContent=this.dataset.l;
+    const cols={Occupied:'#27ae60',Vacant:'#e74c3c',Proposed:'#e67e22',Amendment:'#3498db',Novation:'#9b59b6'};
+    document.getElementById('tipStatus').style.color=cols[this.dataset.s]||'#fff';
+    tip.classList.add('show');moveTip(e);
+  });
+  el.addEventListener('mousemove',moveTip);
+  el.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+});
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';}
+
+/* ── INIT ── */
+window.addEventListener('load',()=>{
+  drawDial(0);
+  setTimeout(()=>{
+    animateDial(74);
+    animateCounters();
+    animateBars();
+    sparkDefs.forEach(d=>drawSparkline(d.id,d.data,d.color));
+    drawTenantChart();
+    drawDonut();
+    drawAgeChart();
+    drawTrendChart();
+  },300);
+});
+
+// Redraw on resize
+window.addEventListener('resize',()=>{
+  sparkDefs.forEach(d=>drawSparkline(d.id,d.data,d.color));
+  drawTenantChart();drawAgeChart();drawTrendChart();
+});
+</script>
+
+
+</body></html>
